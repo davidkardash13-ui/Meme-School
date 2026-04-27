@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Побег от Игоря 18.0: Мокрый Пол+</title>
+    <title>Побег от Игоря 19.0: Рубли и буфет</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #111; font-family: "Comic Sans MS", cursive, sans-serif; user-select: none; }
         
@@ -38,6 +38,7 @@
 
         .trade-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 10px solid #ff1493; border-radius: 20px; padding: 30px; text-align: center; z-index: 100; box-shadow: 10px 10px 0px black; display: none; flex-direction: column; align-items: center; gap: 20px; width: 600px; }
         .trade-menu h2 { margin: 0; font-size: 40px; color: #ff1493; text-shadow: 2px 2px black; }
+        #exchanger-menu h2 { color: #228b22; }
         .trade-options { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
         .trade-btn { font-size: 24px; font-family: "Comic Sans MS"; padding: 15px; background: yellow; border: 5px solid red; color: black; font-weight: bold; cursor: pointer; border-radius: 10px; transition: 0.2s; }
         .trade-btn:hover { background: red; color: yellow; transform: scale(1.1); }
@@ -49,7 +50,6 @@
         #stamina-container { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; align-items: center; gap: 10px; z-index: 130; max-width: min(900px, 96vw); pointer-events: none; }
         #stamina-bar-track { width: 400px; max-width: 92vw; height: 30px; background: rgba(0,0,0,0.5); border: 5px solid white; border-radius: 15px; overflow: hidden; box-shadow: 5px 5px 0px rgba(0,0,0,0.3); }
         #stamina-fill { width: 100%; height: 100%; background: #32cd32; transition: width 0.1s linear; }
-        #controls-hint { position: relative; top: auto; left: auto; transform: none; color: white; font-size: 18px; font-weight: bold; text-shadow: 2px 2px black; text-align: center; width: 100%; line-height: 1.35; padding: 0 6px; box-sizing: border-box; }
 
         #energy-overlay, #box-overlay, #bubble-overlay, #safe-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 2; pointer-events: none; }
         #energy-overlay { box-shadow: inset 0 0 150px blue; }
@@ -89,12 +89,11 @@
         #pause-overlay button { margin-top: 24px; }
         #toast-msg { position: absolute; bottom: 170px; left: 50%; transform: translateX(-50%); background: #ff1493; color: white; padding: 12px 28px; border: 5px solid white; border-radius: 16px; font-size: 22px; font-weight: bold; text-shadow: 2px 2px black; z-index: 115; display: none; box-shadow: 6px 6px 0 black; max-width: 90%; text-align: center; pointer-events: none; }
         #lure-hint { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); color: #ff0; font-size: 26px; font-weight: bold; text-shadow: 3px 3px black; z-index: 6; display: none; pointer-events: none; }
-        #stats-line { font-size: 22px; margin-top: 8px; color: #333; }
     </style>
 </head>
 <body>
 
-    <div id="version-tag">v18.0: Мокрый Пол+</div>
+    <div id="version-tag">v19.0: Рубли и буфет</div>
 
     <div id="loading-screen">
         <div class="spin-derp"></div>
@@ -105,13 +104,24 @@
     <!-- МЕНЮ ТОРГОВЛИ -->
     <div id="buffet-menu" class="trade-menu">
         <h2>ТЕТЯ ЗИНА 🍔</h2>
-        <p>Отдай вещь из инвентаря, чтобы купить еду!</p>
+        <p>Еда за рубли! На счету: <strong id="buffet-balance">0 ₽</strong></p>
         <div class="trade-options">
-            <button class="trade-btn" onclick="buyFromBuffet('sausage', 'Сосиска в тесте')">🌭 Сосиска</button>
-            <button class="trade-btn" onclick="buyFromBuffet('tea', 'Холодный Чай')">🧃 Чай</button>
-            <button class="trade-btn" onclick="buyFromBuffet('pizza', 'Пицца-Сюрприз')">🍕 Пицца</button>
+            <button class="trade-btn" onclick="buyFromBuffet('sausage', 'Сосиска в тесте', 25)">🌭 Сосиска — 25 ₽</button>
+            <button class="trade-btn" onclick="buyFromBuffet('tea', 'Холодный Чай', 18)">🧃 Чай — 18 ₽</button>
+            <button class="trade-btn" onclick="buyFromBuffet('pizza', 'Пицца-Сюрприз', 55)">🍕 Пицца — 55 ₽</button>
         </div>
         <p id="buffet-error" style="color:red; font-size:20px; display:none;"></p>
+        <button class="close-btn" onclick="closeTradeMenu()">УЙТИ (ESC)</button>
+    </div>
+
+    <div id="exchanger-menu" class="trade-menu">
+        <h2>ОБМЕННИК ВАСЯ 💱</h2>
+        <p>Сдай хлам с пола — получи рубли. Выбери слот <strong>1–3</strong> и жми «Продать».</p>
+        <p>Баланс: <strong id="exchanger-balance">0 ₽</strong> · В слоте: <span id="exchanger-slot-label">пусто</span></p>
+        <div class="trade-options">
+            <button class="trade-btn" style="background:#90ee90;border-color:#228b22;" onclick="sellSelectedToExchanger()">ПРОДАТЬ ВЫБРАННЫЙ СЛОТ</button>
+        </div>
+        <p id="exchanger-error" style="color:red; font-size:20px; display:none;"></p>
         <button class="close-btn" onclick="closeTradeMenu()">УЙТИ (ESC)</button>
     </div>
 
@@ -125,7 +135,7 @@
 
     <div id="energy-overlay"></div> <div id="box-overlay"></div> <div id="bubble-overlay"></div> <div id="safe-overlay"></div> 
     
-    <div id="detention-overlay"><h1>НЕ БЕГАТЬ!</h1><p style="font-size: 40px; color: yellow; font-weight: bold; text-shadow: 3px 3px black;">Завуч остановил вас на 3 секунды...</p></div>
+    <div id="detention-overlay"><h1>НЕ БЕГАТЬ!</h1><p style="font-size: 40px; color: yellow; font-weight: bold; text-shadow: 3px 3px black;">Завуч остановил вас на 5 секунд...</p></div>
     <div id="janitor-scold"><h1>КУДА ПО ПОМЫТОМУ<br>ПРЕШЬ?!</h1></div>
 
     <div id="floor-transition"><h1 id="floor-text">2 ЭТАЖ</h1></div>
@@ -166,18 +176,18 @@
     <div id="toast-msg"></div>
     <div id="lure-hint">ИГОРЬ УСЛЫШАЛ КРИК…</div>
 
-    <div id="game-ui">Тетради: <span id="score">0</span>/<span id="goal-display">10</span><div id="floor-indicator">ЭТАЖ: 1</div><div id="stats-line">Время: <span id="play-time">0</span>с | Приманки: <span id="lure-count">0</span></div></div>
+    <div id="game-ui">Тетради: <span id="score">0</span>/<span id="goal-display">10</span><div id="floor-indicator">ЭТАЖ: 1</div><div id="rubles-line">Рубли: <span id="rubles-display">0</span> ₽</div></div>
     
     <div id="inventory-container">
         <div class="inv-slot active" id="slot-0">Пусто (1)</div><div class="inv-slot" id="slot-1">Пусто (2)</div><div class="inv-slot" id="slot-2">Пусто (3)</div>
     </div>
     
     <div id="trade-prompt" class="prompt-box">Нажми [R] открыть Буфет!</div>
+    <div id="exchanger-prompt" class="prompt-box" style="background:#228b22;">Нажми [F] сдать вещи обменнику!</div>
     <div id="dima-prompt" class="prompt-box">Нажми [T] поговорить с Димой!</div>
     <div id="stairs-prompt" class="prompt-box">Нажми [E] подняться по лестнице</div>
     
     <div id="stamina-container">
-        <div id="controls-hint">SHIFT-Бег | C-Стелс | E-Юз/Лестница | R-Буфет | T-Дима | Q-Крик | X-Рывок | P-Пауза</div>
         <div id="stamina-bar-track"><div id="stamina-fill"></div></div>
     </div>
 
@@ -329,6 +339,12 @@
                 ctx.fillStyle = 'white'; ctx.fillRect(110, 150, 100, 80); ctx.fillRect(300, 150, 100, 80);
                 ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(160, 190, 15, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(350, 190, 15, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = 'black'; ctx.beginPath(); ctx.moveTo(150, 380); ctx.lineTo(360, 380); ctx.lineTo(256, 330); ctx.fill();
+            } else if (type === 'exchanger') {
+                ctx.fillStyle = '#90ee90'; ctx.beginPath(); ctx.arc(256, 256, 230, 0, Math.PI*2); ctx.fill(); ctx.lineWidth = 12; ctx.strokeStyle = '#228b22'; ctx.stroke();
+                ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(170, 170, 45, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(340, 170, 45, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(170, 175, 18, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(340, 175, 18, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#333'; ctx.fillRect(200, 300, 112, 14);
+                drawText(ctx, '₽', 200, 400, 140, '#ffd700');
             } else if (type === 'janitor') { 
                 ctx.fillStyle = '#00ced1'; ctx.beginPath(); ctx.arc(256, 256, 240, 0, Math.PI*2); ctx.fill(); ctx.lineWidth = 15; ctx.strokeStyle = '#333'; ctx.stroke(); 
                 ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(150, 180, 60, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(360, 180, 60, 0, Math.PI*2); ctx.fill(); ctx.stroke();
@@ -390,7 +406,9 @@
 
         const UNIT = 10; 
         const walls = [], tables = [], safeZones = []; 
-        let buffetCounterPos = null, dimaPos = null; 
+        let buffetCounterPos = null, dimaPos = null, exchangerPos = null, exchangerObj = null;
+        let rubles = 0;
+        const ITEM_SELL_PRICE_RUB = { spray: 32, box: 38, energy: 48, choco: 24, gum: 14 }; 
         let stairsUpPos = null, stairsDownPos = null;
         let transitionCooldown = 0;
         
@@ -416,7 +434,7 @@
             "10022000010222210000000B00000132201000^1", 
             "1111111111000001111111111141110220111111",
             "W00000000000000000000000000001000010000W",
-            "1000T00001111111111110000000040000100C01", 
+            "1000T000011111111111100K0000040000100C01", 
             "11111141113U0000000011114111111111111111", 
             "1E00000001022009000010000000013220000001", 
             "1002200004000000000040080000040220000001",
@@ -587,6 +605,12 @@
                         // Уборщик теперь спавнит лужи по таймеру
                         janitors.push({ obj: jObj, dirX: Math.random()>0.5?1:-1, dirZ: Math.random()>0.5?1:-1 });
                     }
+                    else if (char === 'K') {
+                        const exMat = new THREE.SpriteMaterial({ map: createTexture('exchanger') });
+                        exchangerObj = new THREE.Sprite(exMat); exchangerObj.scale.set(UNIT, UNIT, 1);
+                        exchangerObj.position.set(posX, UNIT/2, posZ); scene.add(exchangerObj);
+                        exchangerPos = new THREE.Vector3(posX, 4, posZ);
+                    }
                 }
             }
 
@@ -619,6 +643,7 @@
                     useItem();
                 }
                 if(e.code === 'KeyR' && inSafeZone && buffetCounterPos && camera.position.distanceTo(buffetCounterPos) < 15) { openBuffetMenu(); }
+                if(e.code === 'KeyF' && exchangerPos && camera.position.distanceTo(exchangerPos) < 15) { openExchangerMenu(); }
                 if(e.code === 'KeyT' && inSafeZone && dimaPos && camera.position.distanceTo(dimaPos) < 15) { openDimaMenu(); }
                 if(isPlaying && e.code === 'KeyQ' && lureCooldown <= 0) {
                     const ang = Math.random() * Math.PI * 2;
@@ -680,8 +705,30 @@
             setTimeout(() => { scr.style.opacity = '0'; }, 1200); setTimeout(() => { scr.style.display = 'none'; }, 1700);
         }
 
-        function selectSlot(index) { selectedSlot = index; document.querySelectorAll('.inv-slot').forEach((el, i) => el.classList.toggle('active', i === index)); }
+        function selectSlot(index) { selectedSlot = index; document.querySelectorAll('.inv-slot').forEach((el, i) => el.classList.toggle('active', i === index)); refreshExchangerSlotLabel(); }
+        function updateRublesUI() {
+            const n = String(rubles);
+            const el = document.getElementById('rubles-display'); if (el) el.innerText = n;
+            const b = document.getElementById('buffet-balance'); if (b) b.innerText = n + ' ₽';
+            const ex = document.getElementById('exchanger-balance'); if (ex) ex.innerText = n + ' ₽';
+        }
+        function refreshExchangerSlotLabel() {
+            const lab = document.getElementById('exchanger-slot-label');
+            if (!lab) return;
+            const it = inventory[selectedSlot];
+            lab.innerText = it ? (it.name + (ITEM_SELL_PRICE_RUB[it.id] != null ? ' → +' + ITEM_SELL_PRICE_RUB[it.id] + ' ₽' : ' (не скупаем)')) : 'пусто';
+        }
         function addToInventory(itemData) { for(let i=0; i<3; i++) { if(!inventory[i]) { inventory[i] = itemData; document.getElementById(`slot-${i}`).innerText = itemData.name; playSound('pickup'); return true; } } return false; }
+        function addFoodToInventory(foodId, foodName) {
+            for (let i = 0; i < 3; i++) {
+                if (!inventory[i]) {
+                    inventory[i] = { id: foodId, name: foodName };
+                    document.getElementById(`slot-${i}`).innerText = foodName;
+                    return true;
+                }
+            }
+            return false;
+        }
 
         function useItem() {
             let item = inventory[selectedSlot]; if(!item) return;
@@ -695,14 +742,26 @@
             inventory[selectedSlot] = null; document.getElementById(`slot-${selectedSlot}`).innerText = `Пусто (${selectedSlot+1})`;
         }
 
-        function openBuffetMenu() { isMenuOpen = true; document.exitPointerLock(); document.getElementById('buffet-menu').style.display = 'flex'; document.getElementById('buffet-error').style.display = 'none'; }
+        function openBuffetMenu() { isMenuOpen = true; document.exitPointerLock(); updateRublesUI(); document.getElementById('buffet-menu').style.display = 'flex'; document.getElementById('buffet-error').style.display = 'none'; }
+        function openExchangerMenu() { isMenuOpen = true; document.exitPointerLock(); updateRublesUI(); refreshExchangerSlotLabel(); document.getElementById('exchanger-menu').style.display = 'flex'; document.getElementById('exchanger-error').style.display = 'none'; }
         function openDimaMenu() { isMenuOpen = true; document.exitPointerLock(); document.getElementById('dima-menu').style.display = 'flex'; document.getElementById('dima-error').style.display = 'none'; }
-        function closeTradeMenu() { isMenuOpen = false; document.getElementById('buffet-menu').style.display = 'none'; document.getElementById('dima-menu').style.display = 'none'; if (!isPaused) try { document.body.requestPointerLock(); } catch (e) {} }
+        function closeTradeMenu() { isMenuOpen = false; document.getElementById('buffet-menu').style.display = 'none'; document.getElementById('exchanger-menu').style.display = 'none'; document.getElementById('dima-menu').style.display = 'none'; if (!isPaused) try { document.body.requestPointerLock(); } catch (e) {} }
 
-        function buyFromBuffet(foodId, foodName) {
-            if (!inventory[selectedSlot]) { document.getElementById('buffet-error').innerText = "У тебя в руках пусто! Выбери предмет (1, 2, 3)!"; document.getElementById('buffet-error').style.display = 'block'; return; }
-            inventory[selectedSlot] = { id: foodId, name: foodName }; document.getElementById(`slot-${selectedSlot}`).innerText = foodName;
-            playSound('trade'); closeTradeMenu();
+        function buyFromBuffet(foodId, foodName, priceRub) {
+            const err = document.getElementById('buffet-error');
+            if (rubles < priceRub) { err.innerText = 'Не хватает рублей! Сдай вещи обменнику (клавиша F рядом с ним).'; err.style.display = 'block'; return; }
+            if (!addFoodToInventory(foodId, foodName)) { err.innerText = 'Инвентарь полон! Съешь или выкинь что-нибудь (юз на E).'; err.style.display = 'block'; return; }
+            rubles -= priceRub; updateRublesUI(); playSound('trade'); closeTradeMenu();
+        }
+        function sellSelectedToExchanger() {
+            const err = document.getElementById('exchanger-error');
+            const item = inventory[selectedSlot];
+            if (!item) { err.innerText = 'В выбранном слоте пусто.'; err.style.display = 'block'; return; }
+            const price = ITEM_SELL_PRICE_RUB[item.id];
+            if (price == null) { err.innerText = 'Это не скупаем (еду покупай/ешь, тетради не продаём).'; err.style.display = 'block'; return; }
+            rubles += price; inventory[selectedSlot] = null; document.getElementById(`slot-${selectedSlot}`).innerText = 'Пусто (' + (selectedSlot + 1) + ')';
+            updateRublesUI(); refreshExchangerSlotLabel(); playSound('trade'); err.style.display = 'none';
+            showToast('+' + price + ' ₽', 45);
         }
         function tradeWithDimaUI() {
             let item = inventory[selectedSlot];
@@ -732,11 +791,6 @@
             if (dashCooldown > 0) dashCooldown--;
             const slipDur = settings.wetHell ? 58 : 45;
 
-            const pt = document.getElementById('play-time');
-            const lc = document.getElementById('lure-count');
-            if (pt) pt.innerText = Math.floor(playFrames / 55);
-            if (lc) lc.innerText = lureTotal;
-
             if (bellCooldown > 0) bellCooldown--; else {
                 bellCooldown = 700;
                 if (isPlaying && playFrames > 40) { playSound('bell'); for (let t of timofeys) t.angry = false; showToast('ЗВОНОК! Завучи чуть успокоились.', 48); }
@@ -765,7 +819,9 @@
             inSafeZone = isPointInSafeZone(camera.position.x, camera.position.z);
             document.getElementById('safe-overlay').style.display = inSafeZone ? 'block' : 'none';
             document.getElementById('trade-prompt').style.display = (inSafeZone && buffetCounterPos && camera.position.distanceTo(buffetCounterPos) < 15) ? 'block' : 'none';
+            document.getElementById('exchanger-prompt').style.display = (exchangerPos && camera.position.distanceTo(exchangerPos) < 15) ? 'block' : 'none';
             document.getElementById('dima-prompt').style.display = (inSafeZone && dimaPos && camera.position.distanceTo(dimaPos) < 15) ? 'block' : 'none';
+            if (exchangerObj) exchangerObj.rotation.z = Math.sin(time * 2.2) * 0.08;
             
             let nearStairs = (stairsUpPos && camera.position.distanceTo(stairsUpPos) < 15) || (stairsDownPos && camera.position.distanceTo(stairsDownPos) < 15);
             document.getElementById('stairs-prompt').style.display = nearStairs ? 'block' : 'none';
@@ -882,7 +938,7 @@
                     t.obj.position.y = (UNIT/2) + Math.abs(Math.sin(time * 5)) * 1.5; 
 
                     if (distToTimofey < 3.0) {
-                        playerStunTimer = 180; t.angry = false; pickupStreak = 0; document.getElementById('detention-overlay').style.display = 'flex';
+                        playerStunTimer = 300; t.angry = false; pickupStreak = 0; document.getElementById('detention-overlay').style.display = 'flex';
                         playSound('timofey'); t.dirX = Math.random() > 0.5 ? 1 : -1; t.dirZ = Math.random() > 0.5 ? 1 : -1;
                     }
                 } else {
@@ -931,10 +987,10 @@
                     if (score === 1) showToast('Погнали! Собирай тетради и не споткнись…', 100);
                     if(score >= settings.goalNotebooks) { 
                         isPlaying = false; document.exitPointerLock();
-                        document.getElementById('game-ui').style.display = 'none'; document.getElementById('inventory-container').style.display = 'none'; document.getElementById('stamina-container').style.display = 'none'; document.getElementById('trade-prompt').style.display = 'none'; document.getElementById('dima-prompt').style.display = 'none';
+                        document.getElementById('game-ui').style.display = 'none'; document.getElementById('inventory-container').style.display = 'none'; document.getElementById('stamina-container').style.display = 'none'; document.getElementById('trade-prompt').style.display = 'none'; document.getElementById('exchanger-prompt').style.display = 'none'; document.getElementById('dima-prompt').style.display = 'none';
                         document.getElementById('game-over-text').innerText = "КРАСАВА! ТЫ СБЕЖАЛ!";
                         const we = document.getElementById('win-extra');
-                        if (we) we.innerText = "Время: " + Math.floor(playFrames / 55) + "с · Криков-отвлекалок: " + lureTotal + " · Серия тетрадей: " + pickupStreak;
+                        if (we) we.innerText = pickupStreak > 1 ? "Серия тетрадей подряд: " + pickupStreak : "";
                         document.getElementById('game-over').style.backgroundColor = "#32cd32"; document.getElementById('game-over-face').classList.add('dima'); 
                         document.getElementById('game-over').style.display = 'flex';
                     }
@@ -953,8 +1009,8 @@
             document.getElementById('goal-display').innerText = settings.goalNotebooks;
             bellCooldown = 520; bonusSpawnTimer = 0; playFrames = 0; lureTotal = 0; lureTimer = 0; lureCooldown = 0; lurePos = null;
             janitorSignTimer = JANITOR_SIGN_INTERVAL_FRAMES;
-            dashTimer = 0; dashCooldown = 0; isPaused = false; pickupStreak = 0; document.getElementById('pause-overlay').style.display = 'none';
-            initAudio(); document.getElementById('main-menu').style.display = 'none'; document.getElementById('game-ui').style.display = 'block'; document.getElementById('inventory-container').style.display = 'flex'; document.getElementById('stamina-container').style.display = 'flex'; 
+            dashTimer = 0; dashCooldown = 0; isPaused = false; pickupStreak = 0; rubles = 0; document.getElementById('pause-overlay').style.display = 'none';
+            initAudio(); document.getElementById('main-menu').style.display = 'none'; document.getElementById('game-ui').style.display = 'block'; document.getElementById('inventory-container').style.display = 'flex'; document.getElementById('stamina-container').style.display = 'flex'; updateRublesUI(); 
             init(); try { document.body.requestPointerLock(); } catch (e) {} isPlaying = true; animate();
         }
 
@@ -962,7 +1018,7 @@
 
         function gameOver() {
             isPlaying = false; document.exitPointerLock();
-            document.getElementById('game-ui').style.display = 'none'; document.getElementById('inventory-container').style.display = 'none'; document.getElementById('stamina-container').style.display = 'none'; document.getElementById('trade-prompt').style.display = 'none'; document.getElementById('dima-prompt').style.display = 'none';
+            document.getElementById('game-ui').style.display = 'none'; document.getElementById('inventory-container').style.display = 'none'; document.getElementById('stamina-container').style.display = 'none'; document.getElementById('trade-prompt').style.display = 'none'; document.getElementById('exchanger-prompt').style.display = 'none'; document.getElementById('dima-prompt').style.display = 'none';
             const we = document.getElementById('win-extra'); if (we) we.innerText = '';
             document.getElementById('game-over').style.backgroundColor = '#ff69b4'; document.getElementById('game-over-face').classList.remove('dima');
             document.getElementById('game-over-text').innerText = 'ИГОРЬ ДОГНАЛ!';
